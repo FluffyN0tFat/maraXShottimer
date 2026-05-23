@@ -1,5 +1,15 @@
+// ── Libraries ─────────────────────────────────────────────────
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_GFX.h>
+#include <Wire.h>
+#include <HardwareSerial.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include <credentials.h>
+
+// ── Bitmaps ───────────────────────────────────────────────────
 // 'coffee0', 32x64px
-const unsigned char epd_bitmap_coffee0 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee0 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -18,7 +28,7 @@ const unsigned char epd_bitmap_coffee0 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee1', 32x64px
-const unsigned char epd_bitmap_coffee1 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee1 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -37,7 +47,7 @@ const unsigned char epd_bitmap_coffee1 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee2', 32x64px
-const unsigned char epd_bitmap_coffee2 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee2 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -56,7 +66,7 @@ const unsigned char epd_bitmap_coffee2 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee3', 32x64px
-const unsigned char epd_bitmap_coffee3 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee3 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -75,7 +85,7 @@ const unsigned char epd_bitmap_coffee3 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee4', 32x64px
-const unsigned char epd_bitmap_coffee4 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee4 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -94,7 +104,7 @@ const unsigned char epd_bitmap_coffee4 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee5', 32x64px
-const unsigned char epd_bitmap_coffee5 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee5 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -113,7 +123,7 @@ const unsigned char epd_bitmap_coffee5 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee6', 32x64px
-const unsigned char epd_bitmap_coffee6 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee6 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -132,7 +142,7 @@ const unsigned char epd_bitmap_coffee6 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee7', 32x64px
-const unsigned char epd_bitmap_coffee7 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee7 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -151,7 +161,7 @@ const unsigned char epd_bitmap_coffee7 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee8', 32x64px
-const unsigned char epd_bitmap_coffee8 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee8 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -170,7 +180,7 @@ const unsigned char epd_bitmap_coffee8 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee9', 32x64px
-const unsigned char epd_bitmap_coffee9 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee9 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -189,7 +199,7 @@ const unsigned char epd_bitmap_coffee9 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee10', 32x64px
-const unsigned char epd_bitmap_coffee10 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee10 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -208,7 +218,7 @@ const unsigned char epd_bitmap_coffee10 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 // 'coffee11', 32x64px
-const unsigned char epd_bitmap_coffee11 [] PROGMEM = {
+const unsigned char epd_bitmap_coffee11 [] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -226,10 +236,7 @@ const unsigned char epd_bitmap_coffee11 [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-
-// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = 3264)
-const int epd_bitmap_allArray_LEN = 12;
-const unsigned char* epd_bitmap_allArray[12] = {
+const unsigned char* BITMAP_ARRAY[12] = {
 	epd_bitmap_coffee0,
 	epd_bitmap_coffee1,
 	epd_bitmap_coffee2,
@@ -244,79 +251,292 @@ const unsigned char* epd_bitmap_allArray[12] = {
 	epd_bitmap_coffee11
 };
 
-const byte START_POS_X = 1;
-const byte START_POS_Y = 0;
+// ── Konfiguration  ─────────────────────────────────────────────
+const byte WIFI_TRIES = 20;
+const int WIFI_CONNECTION_INTERVAL = 500;
+const char* const MQTT_CLIENT_ID = "esp32_siebtraeger";
+const int MQTT_PORT = 1883;
+const byte MQTT_TRIES = 2;
+const int MQTT_CONNECTION_INTERVAL = 2000;
 
+// ── MQTT Topics ────────────────────────────────────────────────
+const char* const TOPIC_STATUS = "homeassistant/kueche/siebtraeger/status";
+const char* const TOPIC_TEMP = "homeassistant/kueche/siebtraeger/espresso/ziel_temperatur";
+const char* const TOPIC_TEMP_DAMPF = "homeassistant/kueche/siebtraeger/espresso/akt_temperatur";
+const char* const TOPIC_HEIZUNG = "homeassistant/kueche/siebtraeger/heizung";
+const char* const TOPIC_BOOST = "homeassistant/kueche/siebtraeger/boost";
+const char* const TOPIC_ZUSTAND = "homeassistant/kueche/siebtraeger/zustand";
+const char* const TOPIC_BEZUG_AKTIV = "homeassistant/kueche/siebtraeger/bezug/aktiv";
+const char* const TOPIC_BEZUG_DAUER = "homeassistant/kueche/siebtraeger/bezug/dauer";
+
+// ── Pin-Definitionen ───────────────────────────────────────────
 const byte RX_SERIAL = 16;
 const byte TX_SERIAL = 17;
-
 const byte PUMP_PIN = 23;
+const byte STATUS_LED = 2;
 
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_GFX.h>
-#include <Wire.h>
-#include <Timer.h>
-#include <SoftwareSerial.h>
-
+// ── Objekte ───────────────────────────────────────────────────
 Adafruit_SSD1306 display(128, 64, &Wire, -1);
-SoftwareSerial mySerial(RX_SERIAL, TX_SERIAL);
-Timer t;
+HardwareSerial mySerial(2);
+WiFiClient wifiClient;
+PubSubClient mqtt(wifiClient);
 
-// set to true/false when using another type of reed sensor
-bool reedOpenSensor = true;
+// ── Zustandsvariablen ─────────────────────────────────────────
+bool pumpTurnedOn = 0;
 bool displayOn = true;
 int timerCount = 0;
 int prevTimerCount = 0;
 bool timerStartedVar = false;
-long timerStartMillis = 0;
-long timerStopMillis = 0;
-long timerDisplayOffMillis = 0;
-long serialUpdateMillis = 0;
-int pumpInValue = 0;
-int LED_BUILTIN = 2;
+unsigned long timerStartMillis = 0;
+unsigned long timerStopMillis = 0;
+unsigned long timerDisplayOffMillis = 0;
+unsigned long serialUpdateMillis = 0;
+unsigned long lastDisplayUpdate = 0;
 
-const byte numChars = 32;
-char receivedChars[numChars];
-static byte ndx = 0;
-char endMarker = '\n';
+// ── Konstanten ─────────────────────────────────────────────────────
+const long DISPLAY_INTERVAL = 100;
+const char END_MARKER = '\n';
+const int PUMP_DEBOUNCE_DELAY = 700;
+
+// ── Serieller Empfangspuffer ───────────────────────────────────
+const byte NUM_CHARS = 32;
+char receivedChars[NUM_CHARS];
+byte ndx = 0;
 char rc;
 
-void setup() {
+// ── MQTT Publish-Steuerung ────────────────────────────────────
+long lastMqttPublish = -5000;
+const long MQTT_INTERVAL = 5000;  // alle 5 Sekunden publishen
 
-  Serial.begin(9600);
-  mySerial.begin(9600);
+// ── WiFi ──────────────────────────────────────────────────────
+void wifiVerbinden() {
+  Serial.print("WiFi verbinden");
+  WiFi.begin(WIFI_SSID, WIFI_PSW);
+  byte tries = 0;
+  // WIFI_TRIES mal versuchen, sich zu verbinden
+  while (WiFi.status() != WL_CONNECTED && tries < WIFI_TRIES) {
+    delay(WIFI_CONNECTION_INTERVAL);
+    Serial.print(".");
+    tries++;
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nVerbunden! IP: " + WiFi.localIP().toString());
+  } else {
+    Serial.print("\nWiFi fehlgeschlagen: ");
+    Serial.println(WiFi.status());
+    Serial.println("Fahre ohne MQTT fort");
+    // Gerät läuft weiter, nur ohne MQTT – kein harter Absturz
+  }
+}
 
-  pinMode(PUMP_PIN, INPUT_PULLUP);
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
+// ── MQTT ──────────────────────────────────────────────────────
+void mqttVerbinden() {
+  if (WiFi.status() != WL_CONNECTED) return;  // kein WiFi → nicht versuchen
 
-  t.every(100, updateDisplay);
+  Serial.print("MQTT verbinden");
+  byte tries = 0;
+  while (!mqtt.connected() && tries < MQTT_TRIES) {
+    Serial.print(".");
+    // LWT: wenn ESP offline geht, schickt "offline" in QOT 1
+    if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PSW,
+                     TOPIC_STATUS, 1, true, "offline")) {
+      Serial.println("\nverbunden!");
+      mqtt.publish(TOPIC_STATUS, "online", true);
+    } else {
+      Serial.printf("\nFehler rc=%d, warte 2s\n", mqtt.state());
+      Serial.println("-4  → Timeout (Broker nicht erreichbar)");
+      Serial.println("-3  → Verbindung unterbrochen");
+      Serial.println("-2  → Verbindung fehlgeschlagen");
+      Serial.println("-1  → getrennt");
+      Serial.println(" 0  → verbunden");
+      Serial.println(" 1  → falsches Protokoll");
+      Serial.println(" 2  → Client-ID abgelehnt");
+      Serial.println(" 3  → Broker nicht verfügbar");
+      Serial.println(" 4  → falsche Credentials");
+      Serial.println(" 5  → nicht autorisiert");
+      delay(MQTT_CONNECTION_INTERVAL);
+      tries++;
+    }
+  }
+}
 
-  memset(receivedChars, 0, numChars );
+// ── Protokoll-Parsing (sicher, ohne String-Objekte) ───────────
+// [0]      Zustand: 'C'=Coffee, 'V'=Vapor
+// [6-8]    Dampftemperatur (3 Ziffern)
+// [14-16]  Gruppentemperatur (3 Ziffern)
+// [18-21]  Boost-Modus (0000 = kein Boost)
+// [23]     Heizung: '0'=aus, '1'=ein
 
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+int parseTemp(int startIdx) {
+  if (startIdx + 2 >= NUM_CHARS) return -1;
+  if (!receivedChars[startIdx]) return -1;
+
+  char buf[4] = {0};
+  buf[0] = receivedChars[startIdx];
+  buf[1] = receivedChars[startIdx + 1];
+  buf[2] = receivedChars[startIdx + 2];
+  return atoi(buf);
+}
+
+bool isBoostModus() {
+  return !(receivedChars[18] == '0' &&
+           receivedChars[19] == '0' &&
+           receivedChars[20] == '0' &&
+           receivedChars[21] == '0');
+}
+
+// ── MQTT Daten publishen ──────────────────────────────────────
+void mqttPublishieren() {
+  if (!mqtt.connected()) return;
+
+  char buf[16];
+
+  // Gruppentemperatur
+  int temp = parseTemp(14);
+  if (temp > 0) {
+    itoa(temp, buf, 10);
+    mqtt.publish(TOPIC_TEMP, buf);
+  }
+
+  // Dampftemperatur
+  int dampfTemp = parseTemp(6);
+  if (dampfTemp > 0) {
+    itoa(dampfTemp, buf, 10);
+    mqtt.publish(TOPIC_TEMP_DAMPF, buf);
+  }
+
+  // Heizstatus
+  if (receivedChars[23] == '1' || receivedChars[23] == '0') {
+    buf[0] = receivedChars[23]; buf[1] = '\0';
+    mqtt.publish(TOPIC_HEIZUNG, buf);
+  }
+
+  // Boost-Modus
+  mqtt.publish(TOPIC_BOOST, isBoostModus() ? "1" : "0");
+
+  // Maschinenzustand
+  if (receivedChars[0] == 'C') {
+    mqtt.publish(TOPIC_ZUSTAND, "coffee");
+  } else if (receivedChars[0] == 'V') {
+    mqtt.publish(TOPIC_ZUSTAND, "steam");
+  }
+
+  // Bezugsstatus und Dauer
+  mqtt.publish(TOPIC_BEZUG_AKTIV, timerStartedVar ? "1" : "0");
+  itoa(timerCount, buf, 10);
+  mqtt.publish(TOPIC_BEZUG_DAUER, buf);
+}
+
+// ── Timer-String ─────────────────────────────────────────────
+void getTimer(char* out) {
+  // out muss mindestens 3 Bytes groß sein
+  if (timerStartedVar) {
+    timerCount = (millis() - timerStartMillis) / 1000;
+    if (timerCount > 15) prevTimerCount = timerCount;
+  } else {
+    timerCount = prevTimerCount;
+  }
+  int count = timerCount > 99 ? 99 : timerCount;
+  sprintf(out, "%02d", count);
+}
+
+// ── Display ───────────────────────────────────────────────────
+void updateDisplay() {
+  // Timer-String vorbereiten
+  char timerStr[3];
+  getTimer(timerStr);
+  int timerInt = atoi(timerStr);
+
+  // Funktion verlassen, wenn im Sleep Modus
   display.clearDisplay();
-  display.setTextColor(WHITE);
+  if (!displayOn) {
+    display.display();
+    return;
+  }
+
+  // Timer Anzeige
+  if (timerStartedVar) {
+    // Timer
+    display.setTextSize(7);
+    display.setCursor(40, 8);
+    display.print(timerStr);
+
+    // Coffee-Animation
+    byte frame;
+    if (timerInt < 11) frame = 0;
+    else if (timerInt < 13) frame = 1;
+    else if (timerInt < 15) frame = 2;
+    else if (timerInt < 17) frame = 3;
+    else if (timerInt < 19) frame = 4;
+    else if (timerInt < 21) frame = 5;
+    else if (timerInt < 23) frame = 6;
+    else if (timerInt < 25) frame = 7;
+    else if (timerInt < 27) frame = 8;
+    else if (timerInt < 29) frame = 9;
+    else frame = (timerInt % 2 == 0) ? 10 : 11;
+
+    display.drawBitmap(1, 0, BITMAP_ARRAY[frame], 32, 64, WHITE);
+  } else {
+    // Wenn kein Timer, Daten anzeigen
+    // Vertikale Trennlinie
+    display.drawLine(74, 0, 74, 63, SSD1306_WHITE);
+    display.setTextSize(4);
+    display.setCursor(display.width() / 2 - 1 + 17, 20);
+    display.print(timerStr);
+
+    // Zustandsanzeige
+    if (receivedChars[0]) {
+      display.setTextSize(2);
+      display.setCursor(1, 1);
+      if (receivedChars[0] == 'C') display.print("C");
+      else if (receivedChars[0] == 'V') display.print("S");
+      else display.print("X");
+    }
+
+    // Heizkreis-Anzeige
+    bool boost = isBoostModus();
+    bool heizAn = (receivedChars[23] == '1');
+    if (!boost) {
+      if (heizAn) display.fillCircle(45, 7, 6, SSD1306_WHITE);
+      else display.drawCircle(45, 7, 6, SSD1306_WHITE);
+    } else {
+      if (heizAn) display.fillRect(39, 1, 12, 12, SSD1306_WHITE);
+      else display.drawRect(39, 1, 12, 12, SSD1306_WHITE);
+    }
+
+    // Gruppentemperatur
+    int temp = parseTemp(14);
+    if (temp > 0) {
+      display.setTextSize(3);
+      display.setCursor(1, 20);
+      display.print(temp);
+      display.print((char)247);
+      if (temp < 100) display.print("C");
+    }
+
+    // Dampftemperatur
+    int dampf = parseTemp(6);
+    if (dampf > 0) {
+      display.setTextSize(2);
+      display.setCursor(1, 48);
+      display.print(dampf);
+      display.print((char)247);
+      display.print("C");
+    }
+  }
   display.display();
-  mySerial.write(0x11);
 }
 
-void loop() {
-  t.update();
-  detectChanges();
-  getMachineInput();
-}
-
+// ── Serieller Empfang ─────────────────────────────────────────
 void getMachineInput() {
-  while (mySerial.available() ) {
+  while (mySerial.available()) {
     serialUpdateMillis = millis();
     rc = mySerial.read();
 
-    if (rc != endMarker) {
-      receivedChars[ndx] = rc;
-      ndx++;
-      if (ndx >= numChars) {
-        ndx = numChars - 1;
+    // Solange nicht Zeilenumbruch, im Puffer speichern
+    if (rc != END_MARKER) {
+      if (ndx < NUM_CHARS - 1) {
+        receivedChars[ndx++] = rc;
       }
     } else {
       receivedChars[ndx] = '\0';
@@ -327,167 +547,111 @@ void getMachineInput() {
 
   if (millis() - serialUpdateMillis > 5000) {
     serialUpdateMillis = millis();
-    memset(receivedChars, 0, numChars);
+    memset(receivedChars, 0, NUM_CHARS);
     Serial.println("Request serial update");
     mySerial.write(0x11);
   }
 }
 
-void detectChanges() {
-  digitalWrite(LED_BUILTIN, digitalRead(PUMP_PIN));
-  if(reedOpenSensor) {
-    pumpInValue = digitalRead(PUMP_PIN);
-  } else {
-    pumpInValue = !digitalRead(PUMP_PIN);
-  }
-  if (!timerStartedVar && !pumpInValue) {
+// ── Pumpen-Erkennung ──────────────────────────────────────────
+void pumpTimer() {
+  // Builtin LED leuchtet bei Bezug
+  pumpTurnedOn = !digitalRead(PUMP_PIN);
+  digitalWrite(STATUS_LED, pumpTurnedOn);
+
+
+  if (!timerStartedVar && pumpTurnedOn) {
     timerStartMillis = millis();
     timerStartedVar = true;
     displayOn = true;
-    Serial.println("Start pump");
+    Serial.println("Bezug gestartet");
+    if (mqtt.connected()) mqtt.publish(TOPIC_BEZUG_AKTIV, "1");
   }
-  if (timerStartedVar && pumpInValue) {
+
+  if (timerStartedVar && !pumpTurnedOn) {
     if (timerStopMillis == 0) {
       timerStopMillis = millis();
+      Serial.println("DEBOUNCE");
+      Serial.println(millis());
+      Serial.println(timerStopMillis);
     }
-    if (millis() - timerStopMillis > 500) {
+    // Wenn Pumpe länger als PUMP_DEBOUNCE_DELAY aus, Bezug beenden
+    if (millis() - timerStopMillis > PUMP_DEBOUNCE_DELAY) {
+      Serial.println("Bezug beendet");
+      Serial.println(millis());
+      Serial.println(timerStopMillis);
       timerStartedVar = false;
       timerStopMillis = 0;
+      // letzten Bezug merken für Schlafensmodus
       timerDisplayOffMillis = millis();
       display.invertDisplay(false);
-      Serial.println("Stop pump");
+      
+      // Dauer sofort publishen
+      if (mqtt.connected()) {
+        char buf[8];
+        itoa(timerCount, buf, 10);
+        mqtt.publish(TOPIC_BEZUG_DAUER, buf, true);  // retained: letzte Bezugsdauer merken
+        mqtt.publish(TOPIC_BEZUG_AKTIV, "0");
+      }
     }
   } else {
     timerStopMillis = 0;
   }
-  if (!timerStartedVar && displayOn && timerDisplayOffMillis >= 0 && (millis() - timerDisplayOffMillis > 1000 * 60 * 60)) {
+
+  // Display nach 1 Stunde schlafen
+  if (!timerStartedVar && displayOn && (millis() - timerDisplayOffMillis > 1000UL * 60 * 60)) {
     timerDisplayOffMillis = 0;
     timerCount = 0;
     prevTimerCount = 0;
     displayOn = false;
-    Serial.println("Sleep");
+    Serial.println("Display geht schlafen");
   }
 }
 
-String getTimer() {
-  char outMin[2];
-  if (timerStartedVar) {
-    timerCount = (millis() - timerStartMillis ) / 1000;
-    if (timerCount > 15) {
-      prevTimerCount = timerCount;
-    }
-  } else {
-    timerCount = prevTimerCount;
-  }
-  if (timerCount > 99) {
-    return "99";
-  }
-  sprintf( outMin, "%02u", timerCount);
-  return outMin;
-}
+void setup() {
+  // Seriellen Monitor starten und Seriellen Port für Maschine initialisieren
+  Serial.begin(115200);
+  mySerial.begin(9600, SERIAL_8N1, RX_SERIAL, TX_SERIAL);
 
-void updateDisplay() {
+  // Pins initialisieren
+  pinMode(PUMP_PIN, INPUT_PULLUP);
+  pinMode(STATUS_LED, OUTPUT);
+
+  // Display initialisieren
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.clearDisplay();
-  if (displayOn) {
-    if (timerStartedVar) {
-      display.setTextSize(7);
-      display.setCursor(40, 8);
-      String timerTimeStr = getTimer();
-      display.print(timerTimeStr);
-      int timerTimeInt = timerTimeStr.toInt();
-      //Coffee Animation
-      if (timerTimeInt < 11) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[0], 32, 64, WHITE);
-      } else if (timerTimeInt < 13) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[1], 32, 64, WHITE);
-      } else if (timerTimeInt < 15) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[2], 32, 64, WHITE);
-      } else if (timerTimeInt < 17) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[3], 32, 64, WHITE);
-      } else if (timerTimeInt < 19) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[4], 32, 64, WHITE);
-      } else if (timerTimeInt < 21) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[5], 32, 64, WHITE);
-      } else if (timerTimeInt < 23) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[6], 32, 64, WHITE);
-      } else if (timerTimeInt < 25) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[7], 32, 64, WHITE);
-      } else if (timerTimeInt < 27) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[8], 32, 64, WHITE);
-      } else if (timerTimeInt < 29) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[9], 32, 64, WHITE);
-      } else if (timerTimeInt % 2 == 0) {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[10], 32, 64, WHITE);
-      } else {
-        display.drawBitmap(START_POS_X, START_POS_Y, epd_bitmap_allArray[11], 32, 64, WHITE);
-      }
-    } else {
-      // draw line
-      display.drawLine(74, 0, 74, 63, SSD1306_WHITE);
-      // draw time seconds
-      display.setTextSize(4);
-      display.setCursor(display.width() / 2 - 1 + 17, 20);
-      display.print(getTimer());
-      // draw machine state C/S
-      if (receivedChars[0] ) {
-        display.setTextSize(2);
-        display.setCursor(1, 1);
-        if (String(receivedChars[0]) == "C") {
-          display.print("C");
-        } else if (String(receivedChars[0]) == "V") {
-          display.print("S");
-        } else {
-          display.print("X");
-        }
-      }
-      if (String(receivedChars).substring(18, 22) == "0000") {
-        // not in boost heating mode
-        // draw fill circle if heating on
-        if (String(receivedChars[23]) == "1") {
-          display.fillCircle(45, 7, 6, SSD1306_WHITE);
-        }
-        // draw empty circle if heating off
-        if (String(receivedChars[23]) == "0") {
-          display.drawCircle(45, 7, 6, SSD1306_WHITE);
-        }
-      } else {
-        // in boost heating mode
-        // draw fill rectangle if heating on
-        if (String(receivedChars[23]) == "1") {
-          display.fillRect(39, 1, 12, 12, SSD1306_WHITE);
-        }
-        // draw empty rectangle if heating off
-        if (String(receivedChars[23]) == "0") {
-          display.drawRect(39, 1, 12, 12, SSD1306_WHITE);
-        }
-      }
-      // draw temperature
-      if (receivedChars[14] && receivedChars[15] && receivedChars[16]) {
-        display.setTextSize(3);
-        display.setCursor(1, 20);
-        if (String(receivedChars[14]) != "0") {
-          display.print(String(receivedChars[14]));
-        }
-        display.print(String(receivedChars[15]));
-        display.print(String(receivedChars[16]));
-        display.print((char)247);
-        if (String(receivedChars[14]) == "0") {
-          display.print("C");
-        }
-      }
-      // draw steam temperature
-      if (receivedChars[6] && receivedChars[7] && receivedChars[8]) {
-        display.setTextSize(2);
-        display.setCursor(1, 48);
-        if (String(receivedChars[6]) != "0") {
-          display.print(String(receivedChars[6]));
-        }
-        display.print(String(receivedChars[7]));
-        display.print(String(receivedChars[8]));
-        display.print((char)247);
-        display.print("C");
-      }
-    }
-  }
+  display.setTextColor(WHITE);
   display.display();
+
+  // seriellen Request senden, damit Maschine Daten schickt
+  memset(receivedChars, 0, NUM_CHARS);
+  mySerial.write(0x11);
+
+  // WiFi und MQTT verbinden
+  wifiVerbinden();
+  mqtt.setServer(MQTT_SERVER, MQTT_PORT);
+  mqtt.setKeepAlive(60);
+  mqttVerbinden();
+}
+
+// ── Loop ──────────────────────────────────────────────────────
+void loop() {
+  // MQTT Verbindung aufrechterhalten
+  if (!mqtt.connected()) mqttVerbinden();
+  mqtt.loop();
+
+  pumpTimer();
+  getMachineInput();
+
+  // Display alle 100ms aktualisieren
+  if (millis() - lastDisplayUpdate >= DISPLAY_INTERVAL) {
+    lastDisplayUpdate = millis();
+    updateDisplay();
+  }
+
+  // Alle 5 Sekunden MQTT publishen
+  if (millis() - lastMqttPublish > MQTT_INTERVAL) {
+    lastMqttPublish = millis();
+    mqttPublishieren();
+  }
 }
