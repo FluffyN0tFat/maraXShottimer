@@ -251,6 +251,7 @@ const unsigned char* BITMAP_ARRAY[12] = {
 	epd_bitmap_coffee11
 };
 
+// Wifi und MQTT Zugangsdaten in Credentials.h 
 // ── Konfiguration  ─────────────────────────────────────────────
 const byte WIFI_TRIES = 20;
 const int WIFI_CONNECTION_INTERVAL = 500;
@@ -261,15 +262,16 @@ const int MQTT_CONNECTION_INTERVAL = 2000;
 
 // ── MQTT Topics ────────────────────────────────────────────────
 const char* const TOPIC_STATUS = "homeassistant/kueche/siebtraeger/status";
-const char* const TOPIC_TEMP = "homeassistant/kueche/siebtraeger/espresso/ziel_temperatur";
-const char* const TOPIC_TEMP_DAMPF = "homeassistant/kueche/siebtraeger/espresso/akt_temperatur";
+const char* const TOPIC_TEMP_ESPR = "homeassistant/kueche/siebtraeger/espresso/temperatur";
+const char* const TOPIC_TEMP_DAMPF = "homeassistant/kueche/siebtraeger/dampf/temperatur";
+const char* const TOPIC_TEMP_ZIEL = "homeassistant/kueche/siebtraeger/dampf/ziel_temperatur";
 const char* const TOPIC_HEIZUNG = "homeassistant/kueche/siebtraeger/heizung";
 const char* const TOPIC_BOOST = "homeassistant/kueche/siebtraeger/boost";
-const char* const TOPIC_ZUSTAND = "homeassistant/kueche/siebtraeger/zustand";
+const char* const TOPIC_MODUS = "homeassistant/kueche/siebtraeger/modus";
 const char* const TOPIC_BEZUG_AKTIV = "homeassistant/kueche/siebtraeger/bezug/aktiv";
 const char* const TOPIC_BEZUG_DAUER = "homeassistant/kueche/siebtraeger/bezug/dauer";
 
-// ── Pin-Definitionen ───────────────────────────────────────────
+// ── Pin-Definitionen ─────────────────────────────────────────── 
 const byte RX_SERIAL = 16;
 const byte TX_SERIAL = 17;
 const byte PUMP_PIN = 23;
@@ -360,13 +362,161 @@ void mqttVerbinden() {
   }
 }
 
-// ── Protokoll-Parsing (sicher, ohne String-Objekte) ───────────
+void mqttRegisterDevice() {
+  if (!mqtt.connected()) return;
+
+  // Geräte-Info als JSON-Fragment – wird in jeden Sensor eingebettet
+  // "ids" ist die eindeutige Geräte-ID – alle Sensoren mit gleicher ID
+  // werden in HA unter einem Gerät gruppiert
+  const char* device = 
+    "\"device\":{"
+      "\"ids\":\"siebtraeger_01\","
+      "\"name\":\"Siebtraegermaschine\","
+      "\"model\":\"ESP32 Shot Timer\","
+      "\"manufacturer\":\"Custom\""
+    "}";
+
+  // Availability – gilt für alle Sensoren des Geräts
+  const char* availability =
+    "\"availability\":{"
+      "\"topic\":\"homeassistant/kueche/siebtraeger/status\","
+      "\"payload_available\":\"online\","
+      "\"payload_not_available\":\"offline\""
+    "}";
+
+  char config[512];
+
+  // ── Espresso Temperatur ───────────────────────────────────
+  snprintf(config, sizeof(config),
+    "{"
+      "\"name\":\"Espresso Temperatur\","
+      "\"unique_id\":\"siebtraeger_temp_espr\","
+      "\"state_topic\":\"%s\","
+      "\"unit_of_measurement\":\"°C\","
+      "\"device_class\":\"temperature\","
+      "\"expire_after\":30,"
+      "%s,%s"
+    "}",
+    TOPIC_TEMP_ESPR, availability, device
+  );
+  mqtt.publish("homeassistant/sensor/siebtraeger/espresso_temp/config", config, true);
+
+  // ── Dampf Temperatur ──────────────────────────────────────
+  snprintf(config, sizeof(config),
+    "{"
+      "\"name\":\"Dampf Temperatur\","
+      "\"unique_id\":\"siebtraeger_temp_dampf\","
+      "\"state_topic\":\"%s\","
+      "\"unit_of_measurement\":\"°C\","
+      "\"device_class\":\"temperature\","
+      "\"expire_after\":30,"
+      "%s,%s"
+    "}",
+    TOPIC_TEMP_DAMPF, availability, device
+  );
+  mqtt.publish("homeassistant/sensor/siebtraeger/dampf_temp/config", config, true);
+
+  // ── Ziel Temperatur ───────────────────────────────────────
+  snprintf(config, sizeof(config),
+    "{"
+      "\"name\":\"Ziel Temperatur\","
+      "\"unique_id\":\"siebtraeger_temp_ziel\","
+      "\"state_topic\":\"%s\","
+      "\"unit_of_measurement\":\"°C\","
+      "\"device_class\":\"temperature\","
+      "\"expire_after\":30,"
+      "%s,%s"
+    "}",
+    TOPIC_TEMP_ZIEL, availability, device
+  );
+  mqtt.publish("homeassistant/sensor/siebtraeger/ziel_temp/config", config, true);
+
+  // ── Heizung ───────────────────────────────────────────────
+  // binary_sensor statt sensor, weil nur 0/1
+  snprintf(config, sizeof(config),
+    "{"
+      "\"name\":\"Heizung\","
+      "\"unique_id\":\"siebtraeger_heizung\","
+      "\"state_topic\":\"%s\","
+      "\"payload_on\":\"1\","
+      "\"payload_off\":\"0\","
+      "\"device_class\":\"heat\","
+      "\"expire_after\":30,"
+      "%s,%s"
+    "}",
+    TOPIC_HEIZUNG, availability, device
+  );
+  mqtt.publish("homeassistant/binary_sensor/siebtraeger/heizung/config", config, true);
+
+  // ── Boost Modus ───────────────────────────────────────────
+  snprintf(config, sizeof(config),
+    "{"
+      "\"name\":\"Boost Modus\","
+      "\"unique_id\":\"siebtraeger_boost\","
+      "\"state_topic\":\"%s\","
+      "\"payload_on\":\"1\","
+      "\"payload_off\":\"0\","
+      "\"expire_after\":30,"
+      "%s,%s"
+    "}",
+    TOPIC_BOOST, availability, device
+  );
+  mqtt.publish("homeassistant/binary_sensor/siebtraeger/boost/config", config, true);
+
+  // ── Modus (Coffee/Steam) ──────────────────────────────────
+  snprintf(config, sizeof(config),
+    "{"
+      "\"name\":\"Modus\","
+      "\"unique_id\":\"siebtraeger_modus\","
+      "\"state_topic\":\"%s\","
+      "\"expire_after\":30,"
+      "%s,%s"
+    "}",
+    TOPIC_MODUS, availability, device
+  );
+  mqtt.publish("homeassistant/sensor/siebtraeger/modus/config", config, true);
+
+  // ── Bezug aktiv ───────────────────────────────────────────
+  snprintf(config, sizeof(config),
+    "{"
+      "\"name\":\"Bezug aktiv\","
+      "\"unique_id\":\"siebtraeger_bezug_aktiv\","
+      "\"state_topic\":\"%s\","
+      "\"payload_on\":\"1\","
+      "\"payload_off\":\"0\","
+      "\"device_class\":\"running\","
+      "%s,%s"
+    "}",
+    TOPIC_BEZUG_AKTIV, availability, device
+  );
+  mqtt.publish("homeassistant/binary_sensor/siebtraeger/bezug_aktiv/config", config, true);
+
+  // ── Bezug Dauer ───────────────────────────────────────────
+  snprintf(config, sizeof(config),
+    "{"
+      "\"name\":\"Bezug Dauer\","
+      "\"unique_id\":\"siebtraeger_bezug_dauer\","
+      "\"state_topic\":\"%s\","
+      "\"unit_of_measurement\":\"s\","
+      "\"icon\":\"mdi:timer\","
+      "%s,%s"
+    "}",
+    TOPIC_BEZUG_DAUER, availability, device
+  );
+  mqtt.publish("homeassistant/sensor/siebtraeger/bezug_dauer/config", config, true);
+
+  Serial.println("MQTT Discovery registriert");
+}
+
+// ── Protokoll-Parsing ───────────────────────────────────────────
+//  C123b,026,136,022,1137,1
+// [012345678901234567890123]
 // [0]      Zustand: 'C'=Coffee, 'V'=Vapor
 // [6-8]    Dampftemperatur (3 Ziffern)
+// [10-12]  Dampf Zieltemperatur (3 Ziffern)
 // [14-16]  Gruppentemperatur (3 Ziffern)
 // [18-21]  Boost-Modus (0000 = kein Boost)
 // [23]     Heizung: '0'=aus, '1'=ein
-
 int parseTemp(int startIdx) {
   if (startIdx + 2 >= NUM_CHARS) return -1;
   if (!receivedChars[startIdx]) return -1;
@@ -395,7 +545,14 @@ void mqttPublishieren() {
   int temp = parseTemp(14);
   if (temp > 0) {
     itoa(temp, buf, 10);
-    mqtt.publish(TOPIC_TEMP, buf);
+    mqtt.publish(TOPIC_TEMP_ESPR, buf);
+  }
+
+  // Ziel Tempratur
+  int zielTemp = parseTemp(10);
+  if (zielTemp > 0) {
+    itoa(zielTemp, buf, 10);
+    mqtt.publish(TOPIC_TEMP_ZIEL, buf);
   }
 
   // Dampftemperatur
@@ -416,9 +573,9 @@ void mqttPublishieren() {
 
   // Maschinenzustand
   if (receivedChars[0] == 'C') {
-    mqtt.publish(TOPIC_ZUSTAND, "coffee");
+    mqtt.publish(TOPIC_MODUS, "coffee");
   } else if (receivedChars[0] == 'V') {
-    mqtt.publish(TOPIC_ZUSTAND, "steam");
+    mqtt.publish(TOPIC_MODUS, "steam");
   }
 
   // Bezugsstatus und Dauer
@@ -446,6 +603,7 @@ void updateDisplay() {
   char timerStr[3];
   getTimer(timerStr);
   int timerInt = atoi(timerStr);
+  Serial.println("Timer: " + String(timerInt) + "s");
 
   // Funktion verlassen, wenn im Sleep Modus
   display.clearDisplay();
@@ -456,6 +614,7 @@ void updateDisplay() {
 
   // Timer Anzeige
   if (timerStartedVar) {
+    Serial.println("Print Timer");
     // Timer
     display.setTextSize(7);
     display.setCursor(40, 8);
@@ -477,6 +636,7 @@ void updateDisplay() {
 
     display.drawBitmap(1, 0, BITMAP_ARRAY[frame], 32, 64, WHITE);
   } else {
+    Serial.println("Print Data");
     // Wenn kein Timer, Daten anzeigen
     // Vertikale Trennlinie
     display.drawLine(74, 0, 74, 63, SSD1306_WHITE);
@@ -529,6 +689,8 @@ void updateDisplay() {
 
 // ── Serieller Empfang ─────────────────────────────────────────
 void getMachineInput() {
+  //erwartet im Format:
+  //C123b,026,136,022,1137,1
   while (mySerial.available()) {
     serialUpdateMillis = millis();
     rc = mySerial.read();
@@ -556,36 +718,33 @@ void getMachineInput() {
 // ── Pumpen-Erkennung ──────────────────────────────────────────
 void pumpTimer() {
   // Builtin LED leuchtet bei Bezug
-  pumpTurnedOn = !digitalRead(PUMP_PIN);
-  digitalWrite(STATUS_LED, pumpTurnedOn);
+  pumpTurnedOn = digitalRead(PUMP_PIN);
+  
 
 
   if (!timerStartedVar && pumpTurnedOn) {
     timerStartMillis = millis();
     timerStartedVar = true;
     displayOn = true;
+    digitalWrite(STATUS_LED, timerStartedVar);
     Serial.println("Bezug gestartet");
     if (mqtt.connected()) mqtt.publish(TOPIC_BEZUG_AKTIV, "1");
   }
 
   if (timerStartedVar && !pumpTurnedOn) {
-    if (timerStopMillis == 0) {
-      timerStopMillis = millis();
-      Serial.println("DEBOUNCE");
-      Serial.println(millis());
-      Serial.println(timerStopMillis);
-    }
+    if (timerStopMillis == 0) timerStopMillis = millis();
+    
+
     // Wenn Pumpe länger als PUMP_DEBOUNCE_DELAY aus, Bezug beenden
     if (millis() - timerStopMillis > PUMP_DEBOUNCE_DELAY) {
-      Serial.println("Bezug beendet");
-      Serial.println(millis());
-      Serial.println(timerStopMillis);
       timerStartedVar = false;
       timerStopMillis = 0;
       // letzten Bezug merken für Schlafensmodus
       timerDisplayOffMillis = millis();
       display.invertDisplay(false);
-      
+      digitalWrite(STATUS_LED, timerStartedVar);
+      Serial.println("Bezug beendet");
+
       // Dauer sofort publishen
       if (mqtt.connected()) {
         char buf[8];
@@ -644,7 +803,7 @@ void loop() {
   getMachineInput();
 
   // Display alle 100ms aktualisieren
-  if (millis() - lastDisplayUpdate >= DISPLAY_INTERVAL) {
+  if (millis() - lastDisplayUpdate > DISPLAY_INTERVAL) {
     lastDisplayUpdate = millis();
     updateDisplay();
   }
