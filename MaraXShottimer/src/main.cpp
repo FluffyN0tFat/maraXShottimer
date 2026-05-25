@@ -644,7 +644,7 @@ void updateDisplay() {
     display.setCursor(display.width() / 2 - 1 + 17, 20);
     display.print(timerStr);
 
-    // Zustandsanzeige
+    // Modusanzeige
     if (receivedChars[0]) {
       display.setTextSize(2);
       display.setCursor(1, 1);
